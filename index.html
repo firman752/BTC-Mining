@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BTC iner</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #0f0f1a, #1a1a2e);
+      color: #e0f7fa;
+      overflow-x: hidden;
+    }
+    .container {
+      padding: 1.2rem;
+      animation: fadeIn .5s ease;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    .hidden { display: none !important; }
+    .btn {
+      background: linear-gradient(to right, #43e97b, #38f9d7);
+      color: #000;
+      padding: .8rem 1.5rem;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform .3s;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #38f9d7;
+    }
+    .card {
+      background: #1c1c2c;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      box-shadow: 0 0 10px rgba(0,255,255,.1);
+    }
+    header {
+      padding: 1rem;
+      background: linear-gradient(90deg, #00f2fe, #4facfe);
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,.3);
+    }
+    .nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      background: #12122a;
+      border-top: 1px solid #2a2a4a;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, .4);
+      z-index: 99;
+    }
+    .nav button {
+      flex: 1;
+      padding: 1rem;
+      background: none;
+      color: #e0f7fa;
+      border: none;
+      font-size: 1rem;
+      transition: .2s;
+    }
+    .nav button.active, .nav button:hover {
+      background: linear-gradient(90deg, #00f2fe, #4facfe);
+      color: #000;
+      font-weight: bold;
+    }
+    .marquee {
+      background: #00f2fe;
+      color: #000;
+      padding: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    }
+    .marquee span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 60s linear infinite;
+    }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    .stats-grid {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .stats-grid div {
+      background: #0f0f1a;
+      border: 2px solid #00f2fe;
+      border-radius: 12px;
+      padding: 10px;
+      flex: 1 1 30%;
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+      box-shadow: 0 0 12px #00f2fe;
+    }
+    #notifBox {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00f2fe;
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: bold;
+      box-shadow: 0 0 12px #00f2fe;
+      z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="marquee"><span id="marqueeContent"></span></div>
+
+  <!-- Notifikasi -->
+  <div id="notifBox"></div>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login & Dashboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      padding: 1rem;
+    }
+    .card {
+      background: #222;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px auto;
+      border: none;
+      border-radius: 6px;
+      background: #0ff;
+      color: #000;
+      font-weight: bold;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body onload="cekLoginSaatMulai()">
+
+  <!-- Login & Registrasi -->
+  <div id="auth" class="container">
+    <h2 style="text-align:center;">🔐 Masuk / Registrasi</h2>
+    <div class="card" style="text-align:center;">
+      <input class="btn" id="authEmail" placeholder="Email atau Nomor HP" type="text">
+      <input class="btn" id="authPass" placeholder="Password" type="password">
+      <input class="btn" id="authPassConfirm" placeholder="Konfirmasi Password" type="password">
+
+      <div style="margin-top:10px;">
+        <span id="captchaCode" style="background:#0ff;color:#000;font-weight:bold;padding:6px 12px;border-radius:6px;display:inline-block;"></span>
+        <input class="btn" id="captchaInput" placeholder="Masukkan Kode CAPTCHA" type="text">
+      </div>
+
+      <input class="btn" id="inputKodeUndangan" placeholder="Kode Undangan (opsional)">
+      <button class="btn" onclick="prosesAuth()">🚀 Masuk / Registrasi</button>
+      <p style="margin-top:10px;">
+        <a href="#" onclick="alert('Silakan hubungi admin untuk reset password');" style="color:#0ff;text-decoration:underline;">Lupa password?</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Halaman HOME -->
+  <div id="home" class="container hidden">
+    <h2>Dashboard Mining</h2>
+    <div class="card">
+      <h3><strong>SALDO:</strong> <span id="btcBalance">0.00000000</span> BTC<br></h3>
+      ⚡ <strong>Kecepatan:</strong> <span id="miningSpeed">10</span> GH/s
+    </div>
+
+    <div class="progress-bar" id="progressBar" style="height:12px;border-radius:10px;background:linear-gradient(90deg,#4facfe,#00f2fe);width:0;animation:progressAnim 5s linear infinite;animation-play-state:paused;margin-top:10px;"></div>
+
+    <div class="stats-grid" style="margin-top:1rem;">
+      <div>👤 Aktif<br><span id="statAktif">96107</span></div>
+      <div>💰 Pembelian<br>$<span id="statPembelian">6663200</span></div>
+      <div>📤 Penarikan<br>$<span id="statPenarikan">3384100</span></div>
+    </div>
+
+    <button class="btn" onclick="startMining()">Start Mining</button>
+    <button class="btn" onclick="stopMining()" style="background:#f00;color:#fff;">Stop Mining</button>
+
+    <canvas id="miningChart" height="120" style="margin-top:1rem;background:#1a1a2e;border-radius:10px;"></canvas>
+  </div>
+
+  <script>
+    function generateCaptcha() {
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      document.getElementById("captchaCode").innerText = code;
+    }
+
+    function prosesAuth() {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPass").value;
+      const passConfirm = document.getElementById("authPassConfirm").value;
+      const captcha = document.getElementById("captchaInput").value;
+      const captchaCode = document.getElementById("captchaCode").innerText;
+
+      if (!email || !pass || !passConfirm || !captcha) {
+        alert("Harap isi semua kolom.");
+        return;
+      }
+
+      if (pass !== passConfirm) {
+        alert("Konfirmasi password tidak cocok.");
+        return;
+      }
+
+      if (captcha !== captchaCode) {
+        alert("Kode CAPTCHA salah.");
+        return;
+      }
+
+      localStorage.setItem("loggedIn", "true");
+      tampilkanHome();
+    }
+
+    function tampilkanHome() {
+      document.getElementById("auth").classList.add("hidden");
+      document.getElementById("home").classList.remove("hidden");
+    }
+
+    function cekLoginSaatMulai() {
+      generateCaptcha();
+      if (localStorage.getItem("loggedIn") === "true") {
+        tampilkanHome();
+      }
+    }
+
+    function startMining() {
+      alert("Simulasi mining dimulai!");
+    }
+
+    function stopMining() {
+      alert("Simulasi mining dihentikan!");
+    }
+  </script>
+</body>
+</html>
+
+  <!-- Halaman PENARIKAN -->
+  <div id="withdraw" class="container hidden">
+    <h3>Penarikan</h3>
+    <div class="card">
+      <p><strong>Min Penarikan: 0.5 BTC</strong></p>
+      <p><strong>Saldo saat ini:</strong> <span id="currentBalance">0.00000000</span> BTC</p>
+      <input class="btn" id="alamatTujuan" placeholder="Alamat Wallet">
+      <input class="btn" id="jumlahTarik" placeholder="Jumlah BTC" type="number">
+      <input class="btn" id="konfirmasiPIN" placeholder="Konfirmasi PIN" type="password">
+
+      <label for="bankPenarikan" style="display:block;margin-top:10px;"><strong>Pilih Bank Penarikan:</strong></label>
+      <select class="btn" id="bankPenarikan" style="background:#222;color:#0ff;">
+        <option value="">-- Pilih Bank --</option>
+        <option value="BCA">🏦 BCA</option>
+        <option value="LITECOIN">🏦 LITECOIN</option>
+        <option value="INDODAX">🏦 INDODAX</option>
+        <option value="PAYPAL">🏦 PAYPAL</option>
+        <option value="OVO">🏦 OVO</option>
+        <option value="DANA">🏦 DANA</option>
+        <option value="BRI">🏦 BRI</option>
+        <option value="USDT">🏦 USDT</option>
+        <option value="COINBASE">🏦 COINBASE</option>
+        <option value="NC WALET">🏦 NC WALET</option>
+      </select>
+      <button class="btn" onclick="kirimPenarikan()">Kirim Penarikan</button>
+      <p style="margin-top:6px;font-size:.8rem;">Estimasi 5–15 menit tanpa biaya potongan lakukan pembelian GH untuk mendapatkan bonus tambahan 20% khusus bagi penguna yang baru bergabung.</p>
+    </div>
+    <div class="card">
+      <h4>Riwayat Penarikan</h4>
+      <ul id="listRiwayat" style="padding-left:1rem;"></ul>
+    </div>
+  </div>
+
+  <!-- UPGRADE -->
+ <div id="upgrade" class="container hidden">
+   <h2> Upgrade Kecepatan Mining</h2>
+   <label for="paket" style="display:block; margin-top:10px;">
+     <h2>PILIH PAKET GH/TH:⛏️💹</h2>
+     <select id="paket" class="btn" style="background:#222;color:#0ff;">
+       <option value="">-- Pilih Paket --</option>
+       <option value="20GH/s|150000">20GH/s - Rp150.000</option>
+       <option value="30GH/s|300000">30GH/s - Rp300.000</option>
+       <option value="40GH/s|350000">40GH/s - Rp350.000</option>
+       <option value="50GH/s|400000">50GH/s - Rp400.000</option>
+       <option value="60GH/s|450000">60GH/s - Rp450.000</option>
+       <option value="70GH/s|500000">70GH/s - Rp500.000</option>
+       <option value="80GH/s|550000">80GH/s - Rp550.000</option>
+       <option value="90GH/s|600000">90GH/s - Rp600.000</option>
+       <option value="100GH/s|650000">100GH/s - Rp650.000</option>
+       <option value="1TH/s|800000">1TH/s - Rp800.000</option>
+       <option value="5TH/s|1600000">5TH/s - Rp1.600.000</option>
+       <option value="10TH/s|4000000">10TH/s - Rp4.000.000</option>
+       <option value="15TH/s|7000000">15TH/s - Rp7.000.000</option>
+     </select>
+     
+     <label for="metode" style="display:block; margin-top:10px;"></h2>Pilih Metode Pembayaran:</h2></label>
+     <select id="metode" class="btn" style="background:#222;color:#0ff;" onchange="tampilkanPembayaran()">
+       <option value="">-- Pilih Metode --</option>
+       <option value="DANA|083847556444">💶 DANA</option>
+       <option value="INDODAX|5859459403371924">💵 INDODAX</option>
+       <option value="TON|UQBlm5PycB0MZBR47x1TrLP84Wqf291_fgJySj-cOwLtzlHG">💎 TON</option>
+       <option value="OVO|083847556444">💷 OVO</option>
+       <option value="TRX|TWAf5kSxgr7wCr3vcB8pddHFDduGDEJ9F2">🛑 TRX</option>
+       <optio value="USDT|TWAf5kSxgr7wCr3vcB8pddHFDduGDEJ9F2">💲 USDT</optio>
+       <option value="PAYPAL|82219047016">🧿 PAYPAL</option>
+       <option value="GOPAY|083847556444">♻️ GOPAY</option>
+       <option value="ETH|0xe56ed65cf08e2e87b3382b55bc289669994dddd9">🪙 ETH</option>
+       <option value="Litecoin|LTqPWxAF859hRAJX42AnCH95R71ktXgQkn">💱 Litecoin</option>
+     </select>
+     
+     <div id="paymentInfo" style="display:none; margin-top:10px;">
+       <p><strong>Nomor Tujuan:</strong> <span id="nomorRek" style="color:#0ff;"></span></p>
+       <button class="btn" onclick="salinNomor()">Salin Nomor</button>
+       <p id="copySuccess" style="color:#0f0; display:none;">Nomor berhasil disalin!</p>
+     </div>
+     
+     <div id="buktiBayar" style="display:none; margin-top:10px;">
+       <label for="upload">Upload Bukti Pembayaran:</label>
+       <input type="file" id="upload" accept="image/*" class="btn" style="background:#111; color:#fff;">
+       <button class="btn" onclick="kirimBukti()">Kirim Bukti pembayaran</button>
+     </div>
+     
+     <div id="purchaseHistory" class="purchase-history"></div>
+     <h5>bonus 30% btc untuk pembelian kecepatan mining pertamakali Lihat perkembangan harga kripto favoritmu dengan Grafik Kripto Real-time. Buat keputusan cerdas dengan memantau pembaruan harga secara langsung dan identifikasi peluang mining secara instan.<h5>
+ </div>
+ 
+ <script>
+   let nomorPembayaran = "";
+   
+   function tampilkanPembayaran() {
+     const metode = document.getElementById("metode").value;
+     const paymentInfo = document.getElementById("paymentInfo");
+     const buktiBayar = document.getElementById("buktiBayar");
+     
+     if (metode) {
+       const [nama, nomor] = metode.split("|");
+       nomorPembayaran = nomor;
+       document.getElementById("nomorRek").innerText = nomor;
+       paymentInfo.style.display = "block";
+       buktiBayar.style.display = "block";
+       document.getElementById("copySuccess").style.display = "none";
+     } else {
+       paymentInfo.style.display = "none";
+       buktiBayar.style.display = "none";
+     }
+   }
+   
+   function salinNomor() {
+     navigator.clipboard.writeText(nomorPembayaran).then(() => {
+       document.getElementById("copySuccess").style.display = "block";
+     });
+   }
+   
+   function kirimBukti() {
+     const paketValue = document.getElementById("paket").value;
+     const metodeValue = document.getElementById("metode").value;
+     const fileInput = document.getElementById("upload");
+     
+     if (!paketValue || !metodeValue || !fileInput.files.length) {
+       alert("Harap pilih paket, metode, dan upload bukti pembayaran.");
+       return;
+     }
+     
+     const [paket, harga] = paketValue.split("|");
+     const [metode, nomor] = metodeValue.split("|");
+     
+     const message = `Halo Admin,\n\nSaya sudah bayar untuk:\n📦 Paket: ${paket} (Rp${parseInt(harga).toLocaleString()})\n💳 Metode: ${metode}\n📱 Nomor Tujuan: ${nomor}\n\nSaya lampirkan bukti pembayaran.`;
+     
+     const adminWA = "6283847556444"; // Ganti nomor admin WA
+     const url = `https://wa.me/${adminWA}?text=${encodeURIComponent(message)}`;
+     
+     window.open(url, "_blank");
+   }
+  </script>
+  </div>
+
+  <!-- Halaman PENGATURAN -->
+  <div id="settings" class="container hidden">
+    <h2>Pengaturan</h2>
+    <h4><div class="card" style="text-align:center;">
+      <img
+        id="fotoProfil"
+        src="https://via.placeholder.com/120x120.png?text=BTC"
+        class="profile-img"
+        alt="Foto Profil"
+        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 20px #00f2fe; margin: auto;"
+      />
+      <input
+        type="file"
+        id="uploadFoto"
+        class="btn"
+        accept="image/*"
+        onchange="ubahFotoProfil()"
+        style="width: 100%; margin-top: 1rem;"
+      />
+      <p style="margin-top: 10px;"><strong>Level Pengguna:</strong> <span id="levelPengguna">1</span></p>
+    </div>
+
+    <div class="card">
+      <input class="btn" id="pengaturanNama" placeholder="Nama Lengkap">
+      <input class="btn" id="pengaturanHp" placeholder="Nomor HP" type="tel">
+      <input class="btn" id="pengaturanAkun" placeholder="Tambahkan Email">
+      <input class="btn" id="password" placeholder="Ubah PIN Pembayaran" type="password">
+      <button class="btn" onclick="simpanPengaturan()">Simpan Pengaturan</button>
+    </div>
+
+    <div class="card">
+      <h3>Kode Undangan</h3>
+      <input class="btn" id="kodeUndangan" readonly>
+      <button class="btn" onclick="salinKodeUndangan()">Salin Kode</button>
+      <button class="btn" onclick="bagikanKodeUndangan()">Undang Teman</button>
+    </div>
+
+    <div class="card">
+      <button class="btn" onclick="keluarAkun()" style="background:#f39c12;">Keluar Akun</button>
+      <button class="btn" onclick="hapusAkun()" style="background:#e74c3c;color:#fff;">Hapus Akun</button><h4>
+    </div>
+  </div>
+
+  <!-- NAVIGASI -->
+  <div class="nav hidden">
+    <button onclick="showPage('home', this)" class="active">🏠 Home</button>
+    <button onclick="showPage('withdraw', this)">📤 Tarik</button>
+    <button onclick="showPage('upgrade', this)">⚡ Upgrade</button>
+    <button onclick="showPage('settings', this)">⚙️ Pengaturan</button>
+  </div>
+<script>
+  function showNotif(msg) {
+    const box = document.getElementById("notifBox");
+    if (!box) return;
+    box.textContent = msg;
+    box.style.display = "block";
+    setTimeout(() => {
+      box.style.display = "none";
+    }, 2500);
+  }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const users = [
+    "T*****ah menarik 0.0001132 BTC", "m****a menarik 0.00148712 BTC", "a***s1 menarik 0.00184068 BTC",
+    "v****na menarik 0.00025912 BTC", "i***ham menarik 0.00095431 BTC", "ri****n menarik 0.00117126 BTC",
+    "s****n menarik 0.00028113 BTC", "F****n menarik 0.00108391 BTC", "G****ng menarik 0.0007772 BTC",
+    "A****d21 menarik 0.00031348 BTC", "w****an menarik 0.00074064 BTC", "D****o menarik 0.00002577 BTC",
+    "P****an menarik 0.00069349 BTC", "B***as menarik 0.0006651 BTC", "A****a menarik 0.00172105 BTC",
+    "P**ri menarik 0.00180608 BTC", "R***al menarik 0.00007665 BTC", "K****ng menarik 0.00177708 BTC",
+    "S****r menarik 0.00112495 BTC", "j***O menarik 0.00106557 BTC"
+  ];
+  document.getElementById("marqueeContent").textContent = users.join(" ⚡ ");
+});
+
+
+  let currentCaptcha = "";
+  function generateCaptcha() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 5; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    document.getElementById('captchaCode').innerText = code;
+    return code;
+  }
+
+  function showAuthPage() {
+    document.getElementById('auth').style.display = 'block';
+    document.querySelectorAll('.container:not(#auth)').forEach(c => c.style.display = 'none');
+    document.querySelector('.nav')?.classList.add('hidden');
+    generateCaptcha();
+  }
+
+  function tampilkanResetPassword() {
+    showNotif("Reset password belum tersedia.");
+  }
+
+  function prosesAuth() {
+    const email = authEmail.value.trim();
+    const pass = authPass.value;
+    const confirm = authPassConfirm.value;
+    const captcha = captchaInput.value.trim().toUpperCase();
+
+    if (!email || !pass || !confirm || !captcha)
+      return showNotif('⚠️ Semua kolom wajib diisi!');
+    if (pass !== confirm)
+      return showNotif('⚠️ Konfirmasi password salah!');
+    if (captcha !== captchaCode.innerText)
+      return showNotif('⚠️ CAPTCHA salah!');
+
+    const akunList = JSON.parse(localStorage.getItem('akunList') || '[]');
+    const ada = akunList.find(a => a.email === email);
+
+    if (!ada) {
+      akunList.push({ email, pass });
+      localStorage.setItem('akunList', JSON.stringify(akunList));
+    } else if (ada.pass !== pass) {
+      return showNotif('⚠️ Password salah!');
+    }
+
+    localStorage.setItem('akunLogin', JSON.stringify({ email, pass }));
+    localStorage.setItem('isLoggedIn', 'true');
+    showNotif('✅ Login berhasil!');
+    setTimeout(() => location.reload(), 1000);
+  }
+
+  const fmt = v => parseFloat(v).toFixed(8);
+  const getBal = () => parseFloat(localStorage.getItem('btcBalance') || '0');
+  const setBal = v => localStorage.setItem('btcBalance', v);
+
+  let miningChart = null;
+  function initChart() {
+    const ctx = document.getElementById('miningChart').getContext('2d');
+    miningChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: '',
+          data: [],
+          backgroundColor: 'rgba(0,255,255,.1)',
+          borderColor: '#00ffe0',
+          borderWidth: 2,
+          tension: .3,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  function updateChart(val) {
+    if (!miningChart) return;
+    const label = new Date().toLocaleTimeString();
+    miningChart.data.labels.push(label);
+    miningChart.data.datasets[0].data.push(val);
+    if (miningChart.data.labels.length > 20) {
+      miningChart.data.labels.shift();
+      miningChart.data.datasets[0].data.shift();
+    }
+    miningChart.update();
+  }
+
+  let miningInt = null;
+  function startMining() {
+    progressBar.style.animationPlayState = 'running';
+    if (miningInt) return;
+    miningInt = setInterval(() => {
+      const speed = parseInt(miningSpeed.innerText) || 0;
+      const newBal = getBal() + speed * 0.00000001;
+      setBal(newBal);
+      btcBalance.innerText = fmt(newBal);
+      updateChart(newBal);
+    }, 1000);
+  }
+
+  function stopMining() {
+    clearInterval(miningInt);
+    miningInt = null;
+    progressBar.style.animationPlayState = 'paused';
+  }
+
+  function updateBalanceDisplay() {
+    btcBalance.innerText = fmt(getBal());
+    currentBalance.innerText = fmt(getBal());
+  }
+
+  function kirimPenarikan() {
+    const alamat = alamatTujuan.value.trim();
+    const jumlah = parseFloat(jumlahTarik.value);
+    const pin = konfirmasiPIN.value;
+    const bank = bankPenarikan.value;
+    const conf = JSON.parse(localStorage.getItem('pengaturan') || '{}');
+    let bal = getBal();
+
+    if (!alamat || isNaN(jumlah) || jumlah <= 0) return showNotif('⚠️ Lengkapi semua data!');
+    if (!bank) return showNotif('⚠️ Pilih bank!');
+    if (jumlah < 0.5) return showNotif('⚠️ Min penarikan 0.5 BTC');
+    if (jumlah > bal) return showNotif('⚠️ Saldo tidak cukup');
+    if (conf.pin !== pin) return showNotif('⚠️ PIN salah!');
+
+    bal -= jumlah;
+    setBal(bal);
+    updateBalanceDisplay();
+    const riw = JSON.parse(localStorage.getItem('riwayatPenarikan') || '[]');
+    riw.unshift({alamat, jumlah, bank, waktu: new Date().toLocaleString()});
+    localStorage.setItem('riwayatPenarikan', JSON.stringify(riw));
+    showNotif('✅ Penarikan dikirim!');
+    renderRiwayat();
+  }
+
+  function renderRiwayat() {
+    const d = JSON.parse(localStorage.getItem('riwayatPenarikan') || '[]');
+    listRiwayat.innerHTML = d.map(x => `<li>${x.waktu} - ${fmt(x.jumlah)} BTC ke ${x.alamat} (${x.bank})</li>`).join('');
+  }
+
+ 
+  function simpanPengaturan() {
+    const data = {
+      nama: pengaturanNama.value,
+      hp: pengaturanHp.value,
+      akun: pengaturanAkun.value,
+      pin: password.value,
+      level: parseInt(levelPengguna.innerText),
+      foto: localStorage.getItem('fotoProfil') || ''
+    };
+    localStorage.setItem('pengaturan', JSON.stringify(data));
+    showNotif('✅ Pengaturan disimpan');
+  }
+
+  function loadPengaturan() {
+    const d = JSON.parse(localStorage.getItem('pengaturan') || '{}');
+    pengaturanNama.value = d.nama || '';
+    pengaturanHp.value = d.hp || '';
+    pengaturanAkun.value = d.akun || '';
+    password.value = d.pin || '';
+    levelPengguna.innerText = d.level || '1';
+    fotoProfil.src = d.foto || 'https://via.placeholder.com/120x120.png?text=Foto';
+    kodeUndangan.value = genInviteCode();
+  }
+
+  function ubahFotoProfil() {
+    const f = uploadFoto.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = e => {
+      localStorage.setItem('fotoProfil', e.target.result);
+      fotoProfil.src = e.target.result;
+    };
+    r.readAsDataURL(f);
+  }
+
+  function genInviteCode() {
+    let k = localStorage.getItem('kodeUnd');
+    if (!k) {
+      k = 'INV-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      localStorage.setItem('kodeUnd', k);
+    }
+    return k;
+  }
+
+  function salinKodeUndangan() {
+    navigator.clipboard.writeText(kodeUndangan.value).then(() => showNotif('✅ Kode disalin!'));
+  }
+
+  function bagikanKodeUndangan() {
+    window.open(`https://wa.me/?text=${encodeURIComponent('Daftar BTC Miner pakai kode saya: ' + kodeUndangan.value)}`, '_blank');
+  }
+
+  function keluarAkun() {
+    localStorage.setItem('isLoggedIn', 'false');
+    showNotif("✅ Berhasil logout");
+    setTimeout(() => location.reload(), 1000);
+  }
+
+  function hapusAkun() {
+    localStorage.clear();
+    showNotif("🗑️ Semua data dihapus");
+    setTimeout(() => location.reload(), 1000);
+  }
+
+  function showPage(id, btn) {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  if (id === 'home' && !isLoggedIn) {
+    document.getElementById('auth').classList.remove('hidden');
+    document.querySelectorAll('.container:not(#auth)').forEach(c => c.classList.add('hidden'));
+    document.querySelector('.nav')?.classList.add('hidden');
+    return;
+  }
+
+  document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+
+  if (btn) {
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  if (id === 'withdraw') {
+    updateBalanceDisplay();
+    renderRiwayat();
+  }
+}
+
+
+  function initStatCounter() {
+    const elAktif = document.getElementById('statAktif');
+    const elBeli = document.getElementById('statPembelian');
+    const elPenarikan = document.getElementById('statPenarikan');
+    let aktif = parseInt(elAktif.textContent.replace(/\D/g, '')) || 0;
+    let beli = parseInt(elBeli.textContent.replace(/\D/g, '')) || 0;
+    let tarik = parseInt(elPenarikan.textContent.replace(/\D/g, '')) || 0;
+    setInterval(() => {
+      aktif += 18;
+      beli += 30000;
+      tarik += 15000;
+      elAktif.textContent = aktif.toLocaleString();
+      elBeli.textContent = beli.toLocaleString();
+      elPenarikan.textContent = tarik.toLocaleString();
+    }, 1000);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) return showAuthPage();
+   document.getElementById('id')?.classList.remove('hidden');
+    document.querySelector('.nav')?.classList.remove('hidden');
+    updateBalanceDisplay();
+    initChart();
+    loadPengaturan();
+    renderRiwayat();
+    initStatCounter();
+  });
+</script>
+</body>
+</html>
+
+
